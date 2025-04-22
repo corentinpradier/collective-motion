@@ -1,6 +1,6 @@
 # Simulation de Murmuration (Modèle de Vicsek)
 
-Ce projet simule le comportement collectif d'un groupe d'agents (oiseaux) en utilisant un modèle inspiré du modèle de Vicsek. L'objectif est d'observer l'émergence de comportements collectifs, comme la formation de bancs ou de nuées (murmuration), à partir de règles locales simples.
+Ce projet simule le comportement collectif d'un groupe d'agents (oiseaux) en utilisant un modèle inspiré du modèle de Vicsek. L'objectif est d'observer l'émergence de comportements collectifs, comme la formation de bancs (de poissons) ou de nuées (murmuration), à partir de règles locales simples.
 
 ## Fonctionnalités
 

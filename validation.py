@@ -54,7 +54,7 @@ def corr_diff(
     tps: int = 90,
 ) -> None:
     """
-    Tracé du diagramme de phase en fonction du coefficient de corrélation et du coefficient de diffusion
+    Tracé du diagramme de phase en fonction du coefficient de corrélation et du coefficient de diffusion.
 
     Args:
         position (np.ndarray): Position des particules
