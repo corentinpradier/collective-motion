@@ -4,12 +4,6 @@ from tqdm import tqdm
 from IPython.display import clear_output
 
 
-import numpy as np
-import matplotlib.pyplot as plt
-from tqdm import tqdm
-from IPython.display import clear_output
-
-
 class Murmuration:
     def __init__(
         self,
