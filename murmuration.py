@@ -378,113 +378,6 @@ class Murmuration:
 
         return new_position
 
-    def draw_arrows(
-        self,
-        ax,
-        x,
-        y,
-        angles,
-        length,
-        color,
-        width=0.1,
-        head_width=0.3,
-        head_length=0.4,
-    ):
-        from matplotlib.patches import FancyArrow
-
-        for xi, yi, ai in zip(x, y, angles):
-            dx = length * np.cos(ai)
-            dy = length * np.sin(ai)
-            arrow = FancyArrow(
-                xi,
-                yi,
-                dx,
-                dy,
-                width=width,
-                head_width=head_width,
-                head_length=head_length,
-                length_includes_head=True,
-                color=color,
-                zorder=2,
-            )
-            ax.add_patch(arrow)
-
-    def param_ordre(self, angle: np.ndarray) -> float:
-        """
-        Calcule le paramètre d'ordre à partir des angles des oiseaux.
-
-        Args:
-            theta (np.ndarray): Tableau des angles (N_birds).
-
-        Returns:
-            float: Paramètre d'ordre.
-        """
-        if self.n_preys == 0:
-            return np.array([])
-
-        a = np.zeros((self.n_preys, self.n_preys))
-        for i in range(self.n_preys):
-            for j in range(self.n_preys):
-                a[i, j] = 2 * (angle[i] - angle[j])
-
-        return np.mean(np.cos([a]))
-
-
-    def plot_run(
-        self,
-        position,
-        angle_history,
-        prey_color="blue",
-        predator_color="red",
-    ):
-        plt.figure(figsize=(15, 15))
-
-        for i in range(self.time_tot - 1):
-            plt.clf()
-
-            # Positions et angles à l'instant i
-            pos_i = position[:, i, :]
-            angle_i = angle_history[i, :]
-
-            # Tracer les proies
-            if np.any(self.is_prey):
-                self.draw_arrows(
-                    plt.gca(),
-                    pos_i[0, self.is_prey],
-                    pos_i[1, self.is_prey],
-                    angle_i[self.is_prey],
-                    length=3.0,  # Taille du vecteur
-                    width=0.5,  # Corps
-                    head_width=1,  # Tête plus fine
-                    head_length=2,
-                    color=prey_color,
-                )
-
-            # Tracer les prédateurs
-            if np.any(self.is_predator):
-                self.draw_arrows(
-                    plt.gca(),
-                    pos_i[0, self.is_predator],
-                    pos_i[1, self.is_predator],
-                    angle_i[self.is_predator],
-                    length=4.5,  # Taille du vecteur
-                    width=0.5,  # Corps
-                    head_width=2,  # Tête plus fine
-                    head_length=3,
-                    color=predator_color,
-                )
-
-            plt.xlim(-self.window_width - 1, self.window_width + 1)
-            plt.ylim(-self.window_width - 1, self.window_width + 1)
-            plt.title(f"Itération n°{i}")
-            plt.xlabel("x")
-            plt.ylabel("y")
-            plt.gca().set_aspect("equal", adjustable="box")
-            plt.draw()
-            plt.pause(0.01)
-            clear_output(wait=True)
-        plt.close()
-
     def main(self):
         position = self._init_position()
         angle_history, angle = self._init_angle()
@@ -533,13 +426,186 @@ class Murmuration:
 
         return position, angle_history, tab_param_ordre
 
+    ###################
+    ##### Plotting ####
+    ###################
+    def draw_arrows(
+        self,
+        ax,
+        x,
+        y,
+        angles,
+        length,
+        color="tab:blue",
+        cmap=None,
+        width=0.1,
+        head_width=0.3,
+        head_length=0.4,
+    ):
+        from matplotlib.patches import FancyArrow
+        import matplotlib.cm as cm
+
+        if cmap is not None:
+            cmap = cm.get_cmap(cmap)
+
+            vmin = np.min(angles)
+            vmax = np.max(angles)
+
+        for xi, yi, ai in zip(x, y, angles):
+            dx = length * np.cos(ai)
+            dy = length * np.sin(ai)
+
+            if cmap is not None:
+                cmap = cm.get_cmap(cmap)
+                vmin = -np.pi
+                vmax = np.pi
+
+                color = cmap((ai - vmin) / (vmax - vmin))
+
+            arrow = FancyArrow(
+                xi,
+                yi,
+                dx,
+                dy,
+                width=width,
+                head_width=head_width,
+                head_length=head_length,
+                length_includes_head=True,
+                color=color,
+                zorder=2,
+            )
+            ax.add_patch(arrow)
+
+    def plot_frame(
+        self,
+        position,
+        angle_history,
+        ax=None,
+        prey_color="blue",
+        predator_color="red",
+        cmap=None,
+        frame=0):
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(10, 10))
+
+        if frame >= position.shape[1]:
+            raise ValueError("Frame index out of bounds.")
+
+        pos_i = position[:, frame, :]
+        angle_i = angle_history[frame, :]
+
+        if np.any(self.is_prey):
+            self.draw_arrows(
+            ax,
+            pos_i[0, self.is_prey],
+            pos_i[1, self.is_prey],
+            angle_i[self.is_prey],
+            length=3.0,  # Taille du vecteur
+            width=0.5,  # Corps
+            head_width=1,  # Tête plus fine
+            head_length=2,
+            color=prey_color,
+            cmap=cmap,
+        )
+
+        # Tracer les prédateurs
+        if np.any(self.is_predator):
+            self.draw_arrows(
+            plt.gca(),
+            pos_i[0, self.is_predator],
+            pos_i[1, self.is_predator],
+            angle_i[self.is_predator],
+            length=4.5,  # Taille du vecteur
+            width=0.5,  # Corps
+            head_width=2,  # Tête plus fine
+            head_length=3,
+            color=predator_color,
+        )
+
+        ax.set_xlim(-self.window_width - 1, self.window_width + 1)
+        ax.set_ylim(-self.window_width - 1, self.window_width + 1)
+        ax.set_title(f"Frame n°{frame}")
+        ax.set_aspect("equal", adjustable="box")
+
+    def plot_run(
+        self,
+        position,
+        angle_history,
+        prey_color="blue",
+        predator_color="red",
+        cmap=None,
+    ):
+        plt.figure(figsize=(15, 15))
+
+        for i in range(self.time_tot - 1):
+            plt.clf()
+
+            # Positions et angles à l'instant i
+            pos_i = position[:, i, :]
+            angle_i = angle_history[i, :]
+
+            # Tracer les proies
+            if np.any(self.is_prey):
+                self.draw_arrows(
+                    plt.gca(),
+                    pos_i[0, self.is_prey],
+                    pos_i[1, self.is_prey],
+                    angle_i[self.is_prey],
+                    length=3.0,  # Taille du vecteur
+                    width=0.5,  # Corps
+                    head_width=1,  # Tête plus fine
+                    head_length=2,
+                    color=prey_color,
+                    cmap=cmap
+                )
+
+            # Tracer les prédateurs
+            if np.any(self.is_predator):
+                self.draw_arrows(
+                    plt.gca(),
+                    pos_i[0, self.is_predator],
+                    pos_i[1, self.is_predator],
+                    angle_i[self.is_predator],
+                    length=4.5,  # Taille du vecteur
+                    width=0.5,  # Corps
+                    head_width=2,  # Tête plus fine
+                    head_length=3,
+                    color=predator_color,
+                )
+
+            plt.xlim(-self.window_width - 1, self.window_width + 1)
+            plt.ylim(-self.window_width - 1, self.window_width + 1)
+            plt.title(f"Itération n°{i}")
+            plt.gca().set_aspect("equal", adjustable="box")
+            plt.draw()
+            plt.pause(0.01)
+            clear_output(wait=True)
+        plt.close()
 
     ##################
     ### Validation ###
     ##################
-    def plot_msd_po(self, 
-        position: np.ndarray, tab_param_ordre: np.ndarray
-    ) -> None:
+    def param_ordre(self, angle: np.ndarray) -> float:
+        """
+        Calcule le paramètre d'ordre à partir des angles des oiseaux.
+
+        Args:
+            theta (np.ndarray): Tableau des angles (N_birds).
+
+        Returns:
+            float: Paramètre d'ordre.
+        """
+        if self.n_preys == 0:
+            return np.array([])
+
+        a = np.zeros((self.n_preys, self.n_preys))
+        for i in range(self.n_preys):
+            for j in range(self.n_preys):
+                a[i, j] = 2 * (angle[i] - angle[j])
+
+        return np.mean(np.cos([a]))
+
+    def plot_msd_po(self, position: np.ndarray, tab_param_ordre: np.ndarray) -> None:
         """
         Tracé du  MSD et du paramètre d'ordre en fonction du temps.
 
@@ -605,7 +671,6 @@ class Murmuration:
 
         for nc in N_c:
             for ndr in N_Dr:
-
                 # On modifie les paramètres de la simulation
                 self.couplage = nc
                 self.diffusion = ndr
