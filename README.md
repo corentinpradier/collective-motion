@@ -2,7 +2,7 @@
 
 This project simulates the collective behavior of a group of agents (birds) using a model inspired by the Vicsek model. The goal is to observe the emergence of collective behaviors, such as the formation of schools (of fish) or flocks (murmuration), from simple local rules.
 
-![alt text](image.png)
+![alt text](images/murmuration_exemple.png)
 
 ## Features
 
