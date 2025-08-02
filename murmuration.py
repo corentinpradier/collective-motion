@@ -526,6 +526,16 @@ class Murmuration:
         ax.set_ylim(-self.window_width - 1, self.window_width + 1)
         ax.set_title(f"Frame n°{frame}")
         ax.set_aspect("equal", adjustable="box")
+        ax.tick_params(
+            axis="both",
+            which="both",
+            bottom=False,
+            top=False,
+            labelbottom=False,
+            left=False,
+            right=False,
+            labelleft=False,
+        )
 
     def plot_run(
         self,
