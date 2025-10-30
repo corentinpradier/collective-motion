@@ -4,7 +4,7 @@ from tqdm import tqdm
 from IPython.display import clear_output
 
 
-class Murmuration:
+class CollectiveMotion:
     def __init__(
         self,
         time_tot: int,
